@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 current_dir = os.path.dirname((os.path.abspath(__file__)))
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
 data_file_path = os.path.join(project_root, "data", "vacancy_data.json")
+data_file_company = os.path.join(project_root, "data", "company_data.json")
 
 
 class SAVER(ABC):
@@ -12,6 +13,10 @@ class SAVER(ABC):
 
     @abstractmethod
     def add_vacancy(self, vacancy):
+        pass
+
+    @abstractmethod
+    def add_company(self, company):
         pass
 
     @abstractmethod
@@ -23,6 +28,34 @@ class SAVER(ABC):
         pass
 
 
+class JSONSaver_company():
+    """Определяем класс для работы с файлами"""
+
+    def __init__(self, filename=data_file_company):
+        """Метод инициализации атрибутов класса"""
+        self.__filename = filename
+        self.data = []
+        self.load = ()
+
+    def load_data_comp(self):
+        try:
+            with open(self.__filename, "r", encoding="utf-8") as file:
+                self.data = json.load(file)
+        except FileNotFoundError:
+            self.save_data()
+
+    def save_data_comp(self):
+        try:
+            with open(self.__filename, "r", encoding="utf-8") as file:
+                existing_data = json.load(file)
+        except FileNotFoundError:
+            with open(self.__filename, "w", encoding="utf-8") as file:
+                json.dump(self.data, file, indent=4, ensure_ascii=False)
+                return
+
+
+
+
 class JSONSaver(SAVER):
     """Определяем класс для работы с файлами"""
 
@@ -31,6 +64,14 @@ class JSONSaver(SAVER):
         self.__filename = filename
         self.data = []
         self.load = ()
+
+    def load_data_companies(self):
+        try:
+            with open(self.__filename, "r", encoding="utf-8") as file:
+                self.data = json.load(file)
+        except FileNotFoundError:
+            self.save_data()
+
 
     def load_data(self):
         """Метод чтения и загрузки файла в data"""

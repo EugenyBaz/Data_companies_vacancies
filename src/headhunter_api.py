@@ -11,7 +11,11 @@ class AbstractApi(ABC):
         pass
 
     @abstractmethod
-    def get_vacancies(self, keyword):
+    def get_vacancies(self):
+        pass
+
+    @abstractmethod
+    def get_companies(self):
         pass
 
     @abstractmethod
@@ -24,25 +28,59 @@ class HeadHunterAPI(AbstractApi):
 
     def __init__(self):
         """Инициализация атрибутов"""
-        self.__url = "https://api.hh.ru/vacancies"
-        self.__params = {"text": "", "page": 0, "per_page": 100}
-        self.__vacancies = []
+        self.__url = "https://api.hh.ru/vacancies?employer_id={}"
+        self.__url_empl = "https://api.hh.ru/employers/{}"
+        self.__params = {"page": 0, "per_page": 50}
 
-    def get_vacancies(self, keyword):
-        """Метод получения вакансии"""
-        self.__params["text"] = keyword
-        while self.__params.get("page") != 1:
-            response = self._connect_to_api(self.__url, self.__params)
+        self.__vacancies = []
+        self.__companies = []
+        self.__employer_ids = [78638, 3529, 1740, 3776, 4496, 3127, 2748, 907345, 49357, 1054705]
+
+    def get_companies(self):
+        """Метод получения данных о компаниях"""
+        for employer_id in self.__employer_ids:
+            response = self._connect_to_api(self.__url_empl.format(employer_id), self.__params)
+            if response.status_code == 200:
+                company_data = response.json()
+                self.__companies.append(company_data)
+            else:
+                raise ValueError ("Ошибка запроса запрос. Статус !=200")
+        return self.__companies
+
+
+    def get_vacancies(self):
+        """Метод получения вакансии у выбранных компаний"""
+        for employer_id in self.__employer_ids:
+            response = self._connect_to_api(self.__url.format(employer_id), self.__params)
             if response.status_code != 200:
                 break
-            items = response.json()["items"]
+            data = response.json()
+            items = data.get('items', [])
             self.__vacancies.extend(items)
-            self.__params["page"] += 1
         return self.__vacancies
+
+        #     page = 0
+        #     while True:
+        #         self.__params['page'] = page
+        #         response = self._connect_to_api(self.__url.format(employer_id), self.__params)
+        #         if response.status_code != 200:
+        #             break
+        #         data = response.json()
+        #         items = data.get('items',[])
+        #         self.__vacancies.extend(items)
+        #         has_more_pages = data.get('has_more_pages', False)  # Проверяем, есть ли следующие страницы
+        #         if not has_more_pages or page > 50:
+        #             break
+        #         page +=1
+        # return self.__vacancies
 
     @property
     def vacancies(self):
         return self.__vacancies
+
+    @property
+    def companies(self):
+        return self.__companies
 
     def _connect_to_api(self, url, params):
         """Метод для выполнения запроса"""
@@ -50,8 +88,12 @@ class HeadHunterAPI(AbstractApi):
         return response
 
 
-#
-# hh_api = HeadHunterAPI()
-# vacancies = hh_api.get_vacancies("менеджер")
-# print(len(hh_api.vacancies))
-# print(hh_api.vacancies)
+
+hh_api = HeadHunterAPI()
+# companies = hh_api.get_companies()
+# print(companies)
+
+vacancies = hh_api.get_vacancies()
+
+print(vacancies)
+print(len(hh_api.vacancies))
