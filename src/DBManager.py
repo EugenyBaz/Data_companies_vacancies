@@ -1,22 +1,35 @@
+import psycopg2
+from config import config
 
 
 
-get_companies_and_vacancies_count()
- — получает список всех компаний и количество вакансий у каждой компании.
 
-get_all_vacancies()
- — получает список всех вакансий с указанием названия компании, названия вакансии и зарплаты и ссылки на вакансию.
+class DBManager():
 
-get_avg_salary()
- — получает среднюю зарплату по вакансиям.
+    def __init__(self):
 
-get_vacancies_with_higher_salary()
- — получает список всех вакансий, у которых зарплата выше средней по всем вакансиям.
+        self.__params = config()
+        self.__conn = psycopg2.connect(**params)
+        self.__cur = conn.cursor()
 
-get_vacancies_with_keyword()
- — получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python.
-Класс
-DBManager
- должен использовать библиотеку
-psycopg2
- для рабо
+
+    def get_companies_and_vacancies_count(self):
+    """ Получает список всех компаний и количество вакансий у каждой компании."""
+        pass
+
+    def get_all_vacancies(self):
+    """ Получает список всех вакансий с указанием названия компании,
+     названия вакансии и зарплаты и ссылки на вакансию."""
+        pass
+
+    def get_avg_salary(self):
+    """ Получает среднюю зарплату по вакансиям."""
+        pass
+
+    def get_vacancies_with_higher_salary(self):
+    """ Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
+        pass
+
+    def get_vacancies_with_keyword(self):
+    """ Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python."""
+        pass

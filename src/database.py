@@ -63,13 +63,6 @@ def convert_list_to_string(lst):
     """Конвертирует список в строку"""
     return ', '.join([item.get('name', '') for item in lst])
 
-def safe_get(dct, key, default=None):
-    """Получает значение ключа из словаря безопасно, возвращая None если ключ отсутствует."""
-    try:
-        return dct[key]
-    except KeyError:
-        return default
-
 
 def insert_companies(cursor, data):
     for company in data:
