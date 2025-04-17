@@ -28,7 +28,7 @@ cur.execute("DROP TABLE IF EXISTS vacancies CASCADE;")
 # Создаем таблицу компаний
 cur.execute("""
 CREATE TABLE companies (
-    id VARCHAR(20) PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     name VARCHAR(255),
     area VARCHAR(255),
     industries TEXT,
