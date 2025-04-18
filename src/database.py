@@ -1,4 +1,5 @@
 import os
+from typing import List, Any
 import psycopg2
 import json
 from config import config
@@ -9,7 +10,7 @@ data_file_path = os.path.join(project_root, "data", "vacancy_data.json")
 data_file_company = os.path.join(project_root, "data", "company_data.json")
 
 
-def read_json(file_path):
+def read_json(file_path) -> Any:
     with open(file_path, 'r') as file:
         return json.load(file)
 
@@ -60,12 +61,12 @@ CREATE TABLE vacancies (
 companies_data = read_json(data_file_company)
 vacancies_data = read_json(data_file_path)
 
-def convert_list_to_string(lst):
+def convert_list_to_string(lst) -> str:
     """Конвертирует список в строку"""
     return ', '.join([item.get('name', '') for item in lst])
 
 
-def insert_companies(cursor, data):
+def insert_companies(cursor, data : List[dict]) -> None:
     for company in data:
         area_name = company['area'].get('name') if company.get('area') else None
         industries_str = convert_list_to_string(company.get('industries', [])) or ''
@@ -77,7 +78,7 @@ def insert_companies(cursor, data):
 
 
 # Функция для вставки данных о вакансиях
-def insert_vacancies(cursor, data):
+def insert_vacancies(cursor, data: List[dict]) -> None:
         for vacancy in data:
                 area_name = vacancy['area'].get('name') if vacancy.get('area') else None
                 salary_from = vacancy['salary'].get('from') if vacancy.get('salary') else None

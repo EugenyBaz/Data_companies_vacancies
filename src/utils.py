@@ -1,6 +1,7 @@
 import os
 import json
 
+
 from src.file_saver import JSONSaver, JSONSaver_company
 from src.headhunter_api import HeadHunterAPI
 
@@ -11,7 +12,7 @@ data_file_path = os.path.join(project_root, "data", "vacancy_data.json")
 data_file_company = os.path.join(project_root, "data", "company_data.json")
 
 
-def create_data_companies():
+def create_data_companies()-> None:
     """Создание файла компаний в формате  json"""
 
     hh_api = HeadHunterAPI()
@@ -25,7 +26,7 @@ def create_data_companies():
 
 create_data_companies()
 
-def create_data_vacancies():
+def create_data_vacancies() -> None:
     """Создание файла вакансий в формате  json"""
 
     hh_api = HeadHunterAPI()

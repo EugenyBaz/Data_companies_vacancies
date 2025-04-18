@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List, Dict, Any
 
 import requests
 
@@ -7,26 +8,26 @@ class AbstractApi(ABC):
     """Абстрактный класс"""
 
     @abstractmethod
-    def __init__(self):
+    def __init__(self)-> None:
         pass
 
     @abstractmethod
-    def get_vacancies(self):
+    def get_vacancies(self)-> List[Dict[str,Any]]:
         pass
 
     @abstractmethod
-    def get_companies(self):
+    def get_companies(self)-> List[Dict[str,Any]]:
         pass
 
     @abstractmethod
-    def _connect_to_api(self, url, params):
+    def _connect_to_api(self, url, params)-> requests.Response:
         pass
 
 
 class HeadHunterAPI(AbstractApi):
     """Класс работы с API"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Инициализация атрибутов"""
         self.__url = "https://api.hh.ru/vacancies?employer_id={}"
         self.__url_empl = "https://api.hh.ru/employers/{}"
@@ -36,7 +37,7 @@ class HeadHunterAPI(AbstractApi):
         self.__companies = []
         self.__employer_ids = [78638, 3529, 1740, 3776, 4496, 3127, 2748, 907345, 49357, 1054705]
 
-    def get_companies(self):
+    def get_companies(self) -> List[Dict[str,Any]]:
         """Метод получения данных о компаниях"""
         for employer_id in self.__employer_ids:
             response = self._connect_to_api(self.__url_empl.format(employer_id), self.__params)
@@ -48,7 +49,7 @@ class HeadHunterAPI(AbstractApi):
         return self.__companies
 
 
-    def get_vacancies(self):
+    def get_vacancies(self) -> List[Dict[str,Any]]:
         """Метод получения вакансии у выбранных компаний"""
         for employer_id in self.__employer_ids:
             response = self._connect_to_api(self.__url.format(employer_id), self.__params)
@@ -75,14 +76,14 @@ class HeadHunterAPI(AbstractApi):
         # return self.__vacancies
 
     @property
-    def vacancies(self):
+    def vacancies(self) -> List[Dict[str,Any]]:
         return self.__vacancies
 
     @property
-    def companies(self):
+    def companies(self) -> List[Dict[str,Any]]:
         return self.__companies
 
-    def _connect_to_api(self, url, params):
+    def _connect_to_api(self, url, params) -> requests.Response:
         """Метод для выполнения запроса"""
         response = requests.get(url, params=params)
         return response

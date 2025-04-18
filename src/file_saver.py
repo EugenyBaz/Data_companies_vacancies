@@ -1,6 +1,7 @@
 import json
 import os
 from abc import ABC, abstractmethod
+from typing import List, Dict, Union
 
 current_dir = os.path.dirname((os.path.abspath(__file__)))
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
@@ -12,39 +13,39 @@ class SAVER(ABC):
     """Определяем абстрактный класс"""
 
     @abstractmethod
-    def add_vacancy(self, vacancy):
+    def add_vacancy(self, vacancy)-> None:
         pass
 
     @abstractmethod
-    def add_company(self, company):
+    def add_company(self, company) -> None:
         pass
 
     @abstractmethod
-    def get_vacancy_factor(self, factor):
+    def get_vacancy_factor(self, factor) -> None:
         pass
 
     @abstractmethod
-    def delete_vacancy(self, vacancy_id):
+    def delete_vacancy(self, vacancy_id) -> None:
         pass
 
 
 class JSONSaver_company():
     """Определяем класс для работы с файлами"""
 
-    def __init__(self, filename=data_file_company):
+    def __init__(self, filename=data_file_company) -> None:
         """Метод инициализации атрибутов класса"""
         self.__filename = filename
         self.data = []
         self.load = ()
 
-    def load_data_comp(self):
+    def load_data_comp(self) -> None:
         try:
             with open(self.__filename, "r", encoding="utf-8") as file:
                 self.data = json.load(file)
         except FileNotFoundError:
             self.save_data()
 
-    def save_data_comp(self):
+    def save_data_comp(self) -> None:
         try:
             with open(self.__filename, "r", encoding="utf-8") as file:
                 existing_data = json.load(file)
@@ -59,13 +60,13 @@ class JSONSaver_company():
 class JSONSaver(SAVER):
     """Определяем класс для работы с файлами"""
 
-    def __init__(self, filename=data_file_path):
+    def __init__(self, filename=data_file_path) -> None:
         """Метод инициализации атрибутов класса"""
         self.__filename = filename
         self.data = []
         self.load = ()
 
-    def load_data_companies(self):
+    def load_data_companies(self) -> None:
         try:
             with open(self.__filename, "r", encoding="utf-8") as file:
                 self.data = json.load(file)
@@ -73,7 +74,7 @@ class JSONSaver(SAVER):
             self.save_data()
 
 
-    def load_data(self):
+    def load_data(self) ->None:
         """Метод чтения и загрузки файла в data"""
         try:
             with open(self.__filename, "r", encoding="utf-8") as file:
@@ -81,7 +82,7 @@ class JSONSaver(SAVER):
         except FileNotFoundError:
             self.save_data()
 
-    def save_data(self):
+    def save_data(self) -> None:
         try:
             with open(self.__filename, "r", encoding="utf-8") as file:
                 existing_data = json.load(file)
@@ -105,7 +106,7 @@ class JSONSaver(SAVER):
         with open(self.__filename, "w", encoding="utf-8") as file:
             json.dump(existing_data, file, indent=4, ensure_ascii=False)
 
-    def add_vacancy(self, vacancy):
+    def add_vacancy(self, vacancy) ->None:
         """Метод добавления вакансии"""
         vacancy_id = vacancy.get("id")
         if vacancy_id not in [v["id"] for v in self.data]:
@@ -114,7 +115,7 @@ class JSONSaver(SAVER):
         else:
             print(f"Вакансия с id={vacancy_id} уже существует.")
 
-    def get_vacancy_currency(self, factor, vacancies=None):
+    def get_vacancy_currency(self, factor, vacancies=None) -> List[Dict[str, Union[int, str, bool, None]]]:
         """Метод определения необходимой валюты"""
         results = []
 
@@ -126,7 +127,7 @@ class JSONSaver(SAVER):
 
         return results
 
-    def get_vacancy_factor(self, factor_user, vacancies=None):
+    def get_vacancy_factor(self, factor_user, vacancies=None)-> List[Dict[str, Union[int, str, bool, None]]]:
         """Поиск вакансии по параметру"""
         results = []
 
@@ -143,7 +144,7 @@ class JSONSaver(SAVER):
 
         return results
 
-    def delete_vacancy(self, vacancy_id):
+    def delete_vacancy(self, vacancy_id) -> None:
         """Удаление вакансии"""
 
         vacancy_to_delete = next((vacancy for vacancy in self.data if vacancy["id"] == vacancy_id), None)

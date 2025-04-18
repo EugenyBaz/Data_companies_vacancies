@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 from configparser import ConfigParser
 
 current_dir = os.path.dirname((os.path.abspath(__file__)))
@@ -6,7 +7,7 @@ project_root = os.path.abspath(os.path.join(current_dir, ".."))
 data_file = os.path.join(project_root, "database.ini")
 
 
-def config(filename=data_file, section="postgresql"):
+def config(filename=data_file, section="postgresql") -> Dict [str, str]:
     # Создаем парсер
     parser = ConfigParser()
 
@@ -21,7 +22,7 @@ def config(filename=data_file, section="postgresql"):
         raise Exception(f'Раздел {section} не найден в файле {filename}')
 
     # Получаем параметры
-    db = {}
+    db: Dict [str,str] = {}
     params = parser.items(section)
     for param in params:
         db[param[0]] = param[1]

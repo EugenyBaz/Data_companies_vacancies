@@ -1,5 +1,6 @@
 import psycopg2
 from src.config import config
+from typing import List, Tuple, Optional
 
 
 
@@ -14,7 +15,7 @@ class DBManager():
         self.__conn.commit()
 
 
-    def get_companies_and_vacancies_count(self):
+    def get_companies_and_vacancies_count(self) -> List[Tuple[str,int]]:
         """ Получает список всех компаний и количество вакансий у каждой компании."""
         try:
             self.__cur.execute ("""
@@ -32,7 +33,7 @@ class DBManager():
 
 
 
-    def get_all_vacancies(self):
+    def get_all_vacancies(self)-> List[Tuple[str, str, float, float, str]]:
         """ Получает список всех вакансий с указанием названия компании,
          названия вакансии и зарплаты и ссылки на вакансию."""
         try:
@@ -51,7 +52,7 @@ class DBManager():
 
 
 
-    def get_avg_salary(self):
+    def get_avg_salary(self) -> Optional[float]:
         """ Получает среднюю зарплату по вакансиям."""
         try:
             self.__cur.execute("""
@@ -73,7 +74,7 @@ class DBManager():
 
 
 
-    def get_vacancies_with_higher_salary(self):
+    def get_vacancies_with_higher_salary(self) -> List[Tuple[str, str, float, float, str]]:
         """ Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
         try:
             avg_salary = self.get_avg_salary()
@@ -96,7 +97,7 @@ class DBManager():
     def input_keyword(self):
         return input("Введите поисковый запрос: ").lower().strip()
 
-    def get_vacancies_with_keyword(self):
+    def get_vacancies_with_keyword(self) -> List[Tuple[str, str, float, float, str]]:
         """ Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python."""
 
         try:
