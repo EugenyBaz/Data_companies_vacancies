@@ -45,7 +45,8 @@ CREATE TABLE vacancies (
     area_name VARCHAR(255),
     salary_from DECIMAL,
     salary_to DECIMAL,
-    employer_id INT,
+    salary_cur VARCHAR(10),
+    employer_id INT REFERENCES companies(id),
     employer_url VARCHAR(255),
     snippet_requirement TEXT,
     snippet_responsibility TEXT,
@@ -81,18 +82,19 @@ def insert_vacancies(cursor, data):
                 area_name = vacancy['area'].get('name') if vacancy.get('area') else None
                 salary_from = vacancy['salary'].get('from') if vacancy.get('salary') else None
                 salary_to = vacancy['salary'].get('to') if vacancy.get('salary') else None
+                salary_cur = vacancy['salary'].get('currency') if vacancy.get('salary') else None
                 prof_roles = convert_list_to_string(vacancy.get('professional_roles', [])) or ''
 
                 cursor.execute(
                 """
                 INSERT INTO public.vacancies (id_vacancy, name_vacancy, area_name,
-                salary_from, salary_to, employer_id, employer_url, snippet_requirement,
+                salary_from, salary_to,salary_cur, employer_id, employer_url, snippet_requirement,
                 snippet_responsibility, schedule_name, professional_roles_name,
                 experience_name, alternate_url)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """,
                 (vacancy['id'], vacancy['name'],area_name, salary_from,
-                 salary_to, vacancy['employer'].get('id'), vacancy['employer'].get('alternate_url'),
+                 salary_to, salary_cur, vacancy['employer'].get('id'), vacancy['employer'].get('alternate_url'),
                  vacancy['snippet'].get('requirement'), vacancy['snippet'].get('responsibility'),
                  vacancy['schedule'].get('name'), prof_roles, vacancy['experience'].get('name'),
                  vacancy['alternate_url'])

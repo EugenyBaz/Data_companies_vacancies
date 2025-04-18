@@ -26,7 +26,7 @@ def create_data_companies():
 create_data_companies()
 
 def create_data_vacancies():
-    """Создание файла компаний в формате  json"""
+    """Создание файла вакансий в формате  json"""
 
     hh_api = HeadHunterAPI()
     data_vacancies = hh_api.get_vacancies()
