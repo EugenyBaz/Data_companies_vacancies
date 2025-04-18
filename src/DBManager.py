@@ -1,11 +1,11 @@
+from typing import List, Optional, Tuple
+
 import psycopg2
+
 from src.config import config
-from typing import List, Tuple, Optional
 
 
-
-
-class DBManager():
+class DBManager:
 
     def __init__(self):
 
@@ -14,110 +14,109 @@ class DBManager():
         self.__cur = self.__conn.cursor()
         self.__conn.commit()
 
-
-    def get_companies_and_vacancies_count(self) -> List[Tuple[str,int]]:
-        """ Получает список всех компаний и количество вакансий у каждой компании."""
+    def get_companies_and_vacancies_count(self) -> List[Tuple[str, int]]:
+        """Получает список всех компаний и количество вакансий у каждой компании."""
         try:
-            self.__cur.execute ("""
+            self.__cur.execute(
+                """
             SELECT companies.name, COUNT(vacancies.id_vacancy) as count_vac
             FROM companies
             LEFT JOIN vacancies ON companies.id = vacancies.employer_id
             GROUP BY companies.name
             ORDER BY companies.name ASC
-            """)
+            """
+            )
             return self.__cur.fetchall()
 
         except Exception as e:
-            print(f'Ошибка при выполнении запроса {e}')
+            print(f"Ошибка при выполнении запроса {e}")
 
-
-
-
-    def get_all_vacancies(self)-> List[Tuple[str, str, float, float, str]]:
-        """ Получает список всех вакансий с указанием названия компании,
-         названия вакансии и зарплаты и ссылки на вакансию."""
+    def get_all_vacancies(self) -> List[Tuple[str, str, float, float, str]]:
+        """Получает список всех вакансий с указанием названия компании,
+        названия вакансии и зарплаты и ссылки на вакансию."""
         try:
-            self.__cur.execute("""
+            self.__cur.execute(
+                """
                     SELECT companies.name, vacancies.name_vacancy, vacancies.salary_from,
                       vacancies.salary_to, vacancies.alternate_url
                     FROM companies
                     LEFT JOIN vacancies ON companies.id = vacancies.employer_id
                     ORDER BY companies.name ASC;
-                    """)
+                    """
+            )
             return self.__cur.fetchall()
 
         except Exception as e:
-            print(f'Ошибка при выполнении запроса {e}')
-
-
-
+            print(f"Ошибка при выполнении запроса {e}")
 
     def get_avg_salary(self) -> Optional[float]:
-        """ Получает среднюю зарплату по вакансиям."""
+        """Получает среднюю зарплату по вакансиям."""
         try:
-            self.__cur.execute("""
+            self.__cur.execute(
+                """
                     SELECT
-                        AVG((vacancies.salary_from + vacancies.salary_to)/ 2) as avr_salary 
+                        AVG((vacancies.salary_from + vacancies.salary_to)/ 2) as avr_salary
                         FROM vacancies
                         WHERE salary_cur = 'RUR';
-                    
-                    """)
+                        """
+            )
             res = self.__cur.fetchone()
             if res is not None:
-                return round(float(res[0]),2)
+                return round(float(res[0]), 2)
 
             else:
                 return "Нет данных для расчета средней зарплаты."
 
         except Exception as e:
-            print(f'Ошибка при выполнении запроса {e}')
-
-
+            print(f"Ошибка при выполнении запроса {e}")
 
     def get_vacancies_with_higher_salary(self) -> List[Tuple[str, str, float, float, str]]:
-        """ Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
+        """Получает список всех вакансий, у которых зарплата выше средней по всем вакансиям."""
         try:
             avg_salary = self.get_avg_salary()
 
-            self.__cur.execute("""
+            self.__cur.execute(
+                """
                     SELECT
                         companies.name, vacancies.name_vacancy, vacancies.salary_from,
                         vacancies.salary_to, vacancies.alternate_url
                         FROM vacancies
                         FULL JOIN companies ON companies.id = vacancies.employer_id
                         WHERE salary_from > %s
-                        ORDER BY companies.name ASC;""", (avg_salary,))
+                        ORDER BY companies.name ASC;""",
+                (avg_salary,),
+            )
 
             return self.__cur.fetchall()
 
-
         except Exception as e:
-            print(f'Ошибка при выполнении запроса {e}')
+            print(f"Ошибка при выполнении запроса {e}")
 
     def input_keyword(self):
         return input("Введите поисковый запрос: ").lower().strip()
 
     def get_vacancies_with_keyword(self) -> List[Tuple[str, str, float, float, str]]:
-        """ Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python."""
+        """Получает список всех вакансий, в названии которых содержатся переданные в метод слова, например python."""
 
         try:
             keyword = self.input_keyword()
 
-            self.__cur.execute("""
+            self.__cur.execute(
+                """
                     SELECT
                         companies.name, vacancies.name_vacancy, vacancies.salary_from,
                         vacancies.salary_to, vacancies.alternate_url
                         FROM vacancies
                         FULL JOIN companies ON companies.id = vacancies.employer_id
                         WHERE vacancies.name_vacancy ILIKE %s
-                        ORDER BY companies.name ASC;""", ("%" + keyword + "%",))
+                        ORDER BY companies.name ASC;""",
+                ("%" + keyword + "%",),
+            )
 
             return self.__cur.fetchall()
 
-
         except Exception as e:
-            print(f'Ошибка при выполнении запроса {e}')
-
+            print(f"Ошибка при выполнении запроса {e}")
 
 
 db_manager = DBManager()
@@ -141,11 +140,10 @@ result = db_manager.get_all_vacancies()
 #     print('Нет данных.')
 
 
-
 db_manager = DBManager()
 result = db_manager.get_vacancies_with_higher_salary()
 # for row in result:
-    # print(f'{row[0]}, {row[1]}, заработная плата от {row[2]} до {row[3]}, ссылка: {row[4]}')
+# print(f'{row[0]}, {row[1]}, заработная плата от {row[2]} до {row[3]}, ссылка: {row[4]}')
 
 db_manager = DBManager()
 result = db_manager.get_avg_salary()
