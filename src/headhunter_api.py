@@ -94,5 +94,5 @@ hh_api = HeadHunterAPI()
 
 vacancies = hh_api.get_vacancies()
 
-print(vacancies)
-print(len(hh_api.vacancies))
+# print(vacancies)
+# print(len(hh_api.vacancies))

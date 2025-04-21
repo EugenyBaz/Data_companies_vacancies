@@ -1,6 +1,17 @@
 from src.DBManager import DBManager
+from src.database import main
+from src.utils import create_data_companies, create_data_vacancies
+
 
 if __name__ == "__main__":
+    create_data_companies()
+    """ Получение данных по компаниям"""
+    create_data_vacancies()
+    """ Получение данных по вакансиям"""
+    main()
+    """ Чтение данных json, удаление таблиц,
+    создание новых таблиц, загрузка в них данных"""
+
     print("""Привет!
     Предлагаю выбрать интересующие параметры по обзору и поиску вакансии:""")
     while True:

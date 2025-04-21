@@ -22,9 +22,6 @@ def create_data_companies() -> None:
         json.dump(data_comp, file, indent=4, ensure_ascii=False)
 
 
-create_data_companies()
-
-
 def create_data_vacancies() -> None:
     """Создание файла вакансий в формате  json"""
 
@@ -36,6 +33,3 @@ def create_data_vacancies() -> None:
 
     with open(data_file_path, "w", encoding="utf-8") as file:
         json.dump(data_vacancies, file, indent=4, ensure_ascii=False)
-
-
-create_data_vacancies()

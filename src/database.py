@@ -4,7 +4,7 @@ from typing import Any, List
 
 import psycopg2
 
-from config import config
+from src.config import config
 
 current_dir = os.path.dirname((os.path.abspath(__file__)))
 project_root = os.path.abspath(os.path.join(current_dir, ".."))
@@ -17,55 +17,71 @@ def read_json(file_path) -> Any:
         return json.load(file)
 
 
-params = config()
-conn = psycopg2.connect(**params)
+def db_create():
 
-cur = conn.cursor()
+    params = config()
+    conn = psycopg2.connect(**params)
+    return conn
 
-# Удаляем таблицу компаний перед вставкой
-cur.execute("DROP TABLE IF EXISTS companies CASCADE;")
 
-# Удаляем таблицу вакансий перед вставкой
-cur.execute("DROP TABLE IF EXISTS vacancies CASCADE;")
+def drop_tables(conn):
 
-# Создаем таблицу компаний
-cur.execute(
+    cur = conn.cursor()
+
+    # Удаляем таблицу компаний перед вставкой
+    cur.execute("DROP TABLE IF EXISTS companies CASCADE;")
+
+    # Удаляем таблицу вакансий перед вставкой
+    cur.execute("DROP TABLE IF EXISTS vacancies CASCADE;")
+
+    conn.commit()
+    cur.close()
+
+
+def create_table_comp(conn):
+    # Создаем таблицу компаний
+    cur = conn.cursor()
+    cur.execute(
+        """
+    CREATE TABLE companies (
+        id INTEGER PRIMARY KEY,
+        name VARCHAR(255),
+        area VARCHAR(255),
+        industries TEXT,
+        open_vacancies INT,
+        site_url VARCHAR(255)
+    );
     """
-CREATE TABLE companies (
-    id INTEGER PRIMARY KEY,
-    name VARCHAR(255),
-    area VARCHAR(255),
-    industries TEXT,
-    open_vacancies INT,
-    site_url VARCHAR(255)
-);
-"""
-)
+    )
+    conn.commit()
+    cur.close()
 
-# Создаем таблицу вакансий
-cur.execute(
+
+def create_table_vac(conn):
+    # Создаем таблицу вакансий
+    cur = conn.cursor()
+    cur.execute(
+        """
+    CREATE TABLE vacancies (
+        id_vacancy VARCHAR(20)PRIMARY KEY,
+        name_vacancy VARCHAR(255),
+        area_name VARCHAR(255),
+        salary_from DECIMAL,
+        salary_to DECIMAL,
+        salary_cur VARCHAR(10),
+        employer_id INT REFERENCES companies(id),
+        employer_url VARCHAR(255),
+        snippet_requirement TEXT,
+        snippet_responsibility TEXT,
+        schedule_name VARCHAR(255),
+        professional_roles_name TEXT,
+        experience_name VARCHAR(255),
+        alternate_url VARCHAR(255)
+    );
     """
-CREATE TABLE vacancies (
-    id_vacancy VARCHAR(20)PRIMARY KEY,
-    name_vacancy VARCHAR(255),
-    area_name VARCHAR(255),
-    salary_from DECIMAL,
-    salary_to DECIMAL,
-    salary_cur VARCHAR(10),
-    employer_id INT REFERENCES companies(id),
-    employer_url VARCHAR(255),
-    snippet_requirement TEXT,
-    snippet_responsibility TEXT,
-    schedule_name VARCHAR(255),
-    professional_roles_name TEXT,
-    experience_name VARCHAR(255),
-    alternate_url VARCHAR(255)
-);
-"""
-)
-# Чтение данных из JSON-файлов
-companies_data = read_json(data_file_company)
-vacancies_data = read_json(data_file_path)
+    )
+    conn.commit()
+    cur.close()
 
 
 def convert_list_to_string(lst) -> str:
@@ -127,17 +143,30 @@ def insert_vacancies(cursor, data: List[dict]) -> None:
         )
 
 
-# Выполняем вставку данных
-try:
-    with conn:
-        insert_companies(cur, companies_data)
-        insert_vacancies(cur, vacancies_data)
+def main():
+    conn = db_create()
+    try:
+        # Чтение данных из JSON-файлов
+        companies_data = read_json(data_file_company)
+        vacancies_data = read_json(data_file_path)
 
-    print("Данные успешно загружены!")
-except Exception as e:
-    print(f"Произошла ошибка при вставке данных: {e}")
-finally:
-    # Всегда закрываем соединение после завершения работы
-    if conn:
-        cur.close()
-        conn.close()
+        # Удаляем старые таблицы
+        drop_tables(conn)
+
+        # Создаем новые таблицы
+        create_table_comp(conn)
+        create_table_vac(conn)
+
+        # Выполняем вставку данных
+        with conn.cursor() as cur:
+            insert_companies(cur, companies_data)
+            insert_vacancies(cur, vacancies_data)
+
+        conn.commit()
+        print("Данные выгружены из hh.ru и успешно загружены в базу данных!")
+    except Exception as e:
+        print(f"Произошла ошибка при вставке данных: {e}")
+    finally:
+        # Всегда закрываем соединение после завершения работы
+        if conn:
+            conn.close()
